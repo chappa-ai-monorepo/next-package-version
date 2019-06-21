@@ -55,7 +55,7 @@ module.exports = async () => {
 		const match = VERSION_REGEXP.exec(changelog);
 		const latestVersion = get(match, '1', '');
 
-		version.next = latestVersion === version.current ? undefined : latestVersion;
+		version.next = !latestVersion || latestVersion === version.current ? undefined : latestVersion;
 
 		return version;
 	});

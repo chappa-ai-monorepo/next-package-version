@@ -5,6 +5,7 @@ const path = require('path');
 const findUp = require('find-up');
 const chalk = require('chalk');
 const { get } = require('dot-prop');
+const semver = require('semver');
 
 const VERSION_REGEXP = /\[(\d*\.\d*\.\d*)]/g;
 
@@ -55,7 +56,9 @@ module.exports = async () => {
 		const match = VERSION_REGEXP.exec(changelog);
 		const latestVersion = get(match, '1', '');
 
-		version.next = !latestVersion || latestVersion === version.current ? undefined : latestVersion;
+		version.next = !latestVersion || latestVersion === version.current || semver.lt(latestVersion, version.current) ?
+			undefined :
+			latestVersion;
 
 		return version;
 	});

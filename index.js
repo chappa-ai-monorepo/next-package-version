@@ -20,7 +20,7 @@ const resolveJSON = async (cb) => {
 	return JSON.parse(raw);
 };
 
-module.exports = async () => {
+module.exports = async (options = {}) => {
 	const pkgLocation = await pkgUp();
 	const pkg = await resolveJSON(read(pkgLocation));
 
@@ -51,7 +51,13 @@ module.exports = async () => {
 		const version = {
 			current: pkg.version,
 			name: pkg.name,
+			pkgPath: pkgLocation,
+			modulePath: pkgLocation.replace('package.json', ''),
 		};
+
+		if (options.includePackage) {
+			version.pkg = pkg;
+		}
 
 		const match = VERSION_REGEXP.exec(changelog);
 		const latestVersion = get(match, '1', '');

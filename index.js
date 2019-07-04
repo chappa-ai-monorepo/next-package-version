@@ -1,7 +1,8 @@
 const fs = require('fs');
+const path = require('path');
+
 const pkgUp = require('pkg-up');
 const glob = require('glob');
-const path = require('path');
 const findUp = require('find-up');
 const chalk = require('chalk');
 const { get } = require('dot-prop');
@@ -37,35 +38,37 @@ module.exports = async (options = {}) => {
 			const modulePkg = await pkgUp({ cwd: path.join(process.cwd(), f)});
 			const moduleChangelog = await findUp('CHANGELOG.md', { cwd: path.join(process.cwd(), f) });
 
-			const pkg = await resolveJSON(read(modulePkg));
+			const pkg = modulePkg.includes(f) ? await resolveJSON(read(modulePkg)) : {};
 			const changelog = moduleChangelog ? await read(moduleChangelog)() : '';
 
 			if (!changelog) {
 				console.warn(chalk.yellow(`Package ${pkg.name} does not have a changelog.`));
 			}
 
-			return { pkg, changelog };
+			return { pkg, changelog, modulePkg };
 		}));
 
-	return packages.map(({ pkg, changelog }) => {
-		const version = {
-			current: pkg.version,
-			name: pkg.name,
-			pkgPath: pkgLocation,
-			modulePath: pkgLocation.replace('package.json', ''),
-		};
+	return packages
+		.filter(({ pkg }) => pkg.name)
+		.map(({ pkg, changelog, modulePkg }) => {
+			const version = {
+				current: pkg.version,
+				name: pkg.name,
+				pkgPath: modulePkg,
+				modulePath: modulePkg.replace('package.json', ''),
+			};
 
-		if (options.includePackage) {
-			version.pkg = pkg;
-		}
+			if (options.includePackage) {
+				version.pkg = pkg;
+			}
 
-		const match = VERSION_REGEXP.exec(changelog);
-		const latestVersion = get(match, '1', '');
+			const match = VERSION_REGEXP.exec(changelog);
+			const latestVersion = get(match, '1', '');
 
-		version.next = !latestVersion || latestVersion === version.current || semver.lt(latestVersion, version.current) ?
-			undefined :
-			latestVersion;
+			version.next = !latestVersion || latestVersion === version.current || semver.lt(latestVersion, version.current) ?
+				undefined :
+				latestVersion;
 
-		return version;
-	});
+			return version;
+		});
 };

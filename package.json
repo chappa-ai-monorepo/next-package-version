@@ -1,5 +1,5 @@
 {
-  "name": "next-package-version",
+  "name": "@chappa'ai/next-package-version",
   "version": "1.2.0",
   "main": "index.js",
   "license": "MIT",
@@ -11,9 +11,9 @@
     "pkg-up": "^3.1.0",
     "semver": "^6.1.1"
   },
-  "author": "Matt McElwee <mubatt@wyopub.com>",
+  "author": "Chappa'ai Team",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Renddslow/next-package-version"
+    "url": "https://github.com/chappa-ai-monorepo/next-package-version"
   }
 }
